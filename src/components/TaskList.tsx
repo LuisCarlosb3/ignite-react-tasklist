@@ -1,8 +1,6 @@
 import { useState } from 'react'
-
-import '../styles/tasklist.scss'
-
 import { FiTrash, FiCheckSquare } from 'react-icons/fi'
+import '../styles/tasklist.scss'
 
 interface Task {
   id: number;
@@ -13,17 +11,39 @@ interface Task {
 export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
-
+  const [inputRef, setInputRef] = useState<HTMLInputElement>()
   function handleCreateNewTask() {
-    // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
+    if(newTaskTitle.trim() !== ''){
+      const newTask: Task = {
+        id: Math.random(),
+        title: newTaskTitle,
+        isComplete: false
+      }
+      setTasks(old=>[...old, newTask])
+      setNewTaskTitle('')
+    }else{
+      inputRef?.focus()
+    }
   }
 
   function handleToggleTaskCompletion(id: number) {
-    // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
+    const newTasks = tasks.map(task=>{
+      if(task.id == id){
+        task.isComplete =  !task.isComplete
+      }
+      return task
+    })
+    setTasks(newTasks)
+    
   }
 
   function handleRemoveTask(id: number) {
-    // Remova uma task da listagem pelo ID
+    const newTasks = tasks.filter(task=>{
+      if(task.id != id){
+        return task
+      }
+    })
+    setTasks(newTasks)
   }
 
   return (
@@ -33,6 +53,7 @@ export function TaskList() {
 
         <div className="input-group">
           <input 
+            ref={(input)=>setInputRef(input)}
             type="text" 
             placeholder="Adicionar novo todo" 
             onChange={(e) => setNewTaskTitle(e.target.value)}
